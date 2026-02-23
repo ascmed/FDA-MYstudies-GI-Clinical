@@ -192,18 +192,74 @@ class StorageService {
 
     // MARK: - Consent Signatures (Keychain)
 
-    func saveConsentSignature(_ signature: ConsentSignature) {
+    func saveConsentSignature(_ signature: ConsentSignature) throws {
         do {
             let encoded = try JSONEncoder().encode(signature)
             try keychain.set(encoded, key: "consentSignature_\(signature.id)")
         } catch {
             Logger.error("Failed to save consent signature: \(error)")
+            throw error
         }
     }
 
     func getConsentSignature(_ id: String) -> ConsentSignature? {
         guard let data = try? keychain.getData("consentSignature_\(id)") else { return nil }
         return try? JSONDecoder().decode(ConsentSignature.self, from: data)
+    }
+
+    func getAllConsentSignatures() throws -> [ConsentSignature] {
+        let defaults = UserDefaults.standard
+        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix("consentSignature_") }
+
+        return keys.compactMap { key in
+            guard let data = try? keychain.getData(key) else { return nil }
+            return try? JSONDecoder().decode(ConsentSignature.self, from: data)
+        }
+    }
+
+    // MARK: - Consent Form Cache
+
+    func saveConsentForm(_ form: ConsentForm) throws {
+        if let encoded = try? JSONEncoder().encode(form) {
+            userDefaults.set(encoded, forKey: "consentForm_\(form.id)")
+        }
+    }
+
+    func getConsentForm(for studyId: String) throws -> ConsentForm? {
+        // First try to find by studyId
+        let defaults = UserDefaults.standard
+        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix("consentForm_") }
+
+        for key in keys {
+            guard let data = defaults.data(forKey: key) else { continue }
+            if let form = try? JSONDecoder().decode(ConsentForm.self, from: data),
+               form.studyId == studyId {
+                return form
+            }
+        }
+        return nil
+    }
+
+    func getAllConsentForms() throws -> [ConsentForm] {
+        let defaults = UserDefaults.standard
+        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix("consentForm_") }
+
+        return keys.compactMap { key in
+            guard let data = defaults.data(forKey: key) else { return nil }
+            return try? JSONDecoder().decode(ConsentForm.self, from: data)
+        }
+    }
+
+    // MARK: - Consent PDF Storage
+
+    func saveConsentForEmail(_ pdfData: Data, recipient: String) throws {
+        userDefaults.set(pdfData, forKey: "consentPDF_\(recipient)_\(Date().timeIntervalSince1970)")
+    }
+
+    func getPendingConsentEmails() -> [String] {
+        let defaults = UserDefaults.standard
+        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix("consentPDF_") }
+        return Array(keys)
     }
 
     // MARK: - Cache Management

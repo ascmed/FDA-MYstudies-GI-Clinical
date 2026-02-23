@@ -91,9 +91,43 @@ class APIService {
         return get(endpoint, expecting: ConsentForm.self)
     }
 
+    func getConsentFormAsync(forStudy studyId: String) async throws -> ConsentForm {
+        let endpoint = baseURL.appendingPathComponent("consent/study/\(studyId)")
+        return try await getAsync(endpoint, expecting: ConsentForm.self)
+    }
+
     func submitConsent(_ request: ConsentRequest) -> AnyPublisher<ConsentResponse, AppError> {
         let endpoint = baseURL.appendingPathComponent("consent/submit")
         return post(endpoint, body: request, expecting: ConsentResponse.self)
+    }
+
+    func submitConsentAsync(_ request: ConsentRequest) async throws -> ConsentResponse {
+        let endpoint = baseURL.appendingPathComponent("consent/submit")
+        return try await postAsync(endpoint, body: request, expecting: ConsentResponse.self)
+    }
+
+    func getConsentStatus(for studyId: String) async throws -> ConsentStatus {
+        let endpoint = baseURL.appendingPathComponent("consent/status/\(studyId)")
+        return try await getAsync(endpoint, expecting: ConsentStatus.self)
+    }
+
+    func revokeConsent(for studyId: String) async throws {
+        let endpoint = baseURL.appendingPathComponent("consent/revoke/\(studyId)")
+        _ = try await postAsync(endpoint, body: EmptyRequest(), expecting: SubmitResponse.self)
+    }
+
+    func downloadConsentPDF(for consentFormId: String) async throws -> URL {
+        let endpoint = baseURL.appendingPathComponent("consent/download/\(consentFormId)")
+        let request = URLRequest(url: endpoint)
+
+        let (data, response) = try await session.data(for: request)
+        try handleResponse(response)
+
+        // Save to temporary location
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(consentFormId).pdf")
+        try data.write(to: tempURL)
+
+        return tempURL
     }
 
     // MARK: - User
@@ -247,6 +281,8 @@ struct ConsentResponse: Codable {
         case consentId = "consent_id"
     }
 }
+
+struct EmptyRequest: Codable {}
 
 struct EmptyResponse: Codable {}
 
