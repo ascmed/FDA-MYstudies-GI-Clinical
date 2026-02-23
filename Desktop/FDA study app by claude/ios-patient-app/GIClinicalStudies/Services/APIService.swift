@@ -70,9 +70,19 @@ class APIService {
         return get(endpoint, expecting: Survey.self)
     }
 
-    func submitSurveyResponse(_ response: SurveyResponse) -> AnyPublisher<SubmitResponse, AppError> {
+    func getSurveyQuestions(surveyId: String) async throws -> [Question] {
+        let endpoint = baseURL.appendingPathComponent("surveys/\(surveyId)/questions")
+        return try await getAsync(endpoint, expecting: [Question].self)
+    }
+
+    func submitSurveyResponse(_ response: SurveyResponse) async throws {
         let endpoint = baseURL.appendingPathComponent("responses/submit")
-        return post(endpoint, body: response, expecting: SubmitResponse.self)
+        _ = try await postAsync(endpoint, body: response, expecting: SubmitResponse.self)
+    }
+
+    func markSurveyCompleted(surveyId: String) async throws {
+        let endpoint = baseURL.appendingPathComponent("surveys/\(surveyId)/complete")
+        _ = try await postAsync(endpoint, body: EmptyResponse(), expecting: SubmitResponse.self)
     }
 
     // MARK: - Consent
@@ -104,6 +114,39 @@ class APIService {
 
     // MARK: - Private Methods
 
+    // MARK: - Async/Await Methods
+    private func getAsync<T: Decodable>(_ url: URL, expecting: T.Type) async throws -> T {
+        var request = URLRequest(url: url)
+        addAuthHeader(&request)
+
+        let (data, response) = try await session.data(for: request)
+        try handleResponse(response)
+
+        let decoder = JSONDecoder()
+        return try decoder.decode(T.self, from: data)
+    }
+
+    private func postAsync<T: Decodable, B: Encodable>(
+        _ url: URL,
+        body: B,
+        expecting: T.Type
+    ) async throws -> T {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(&request)
+
+        let encoder = JSONEncoder()
+        request.httpBody = try encoder.encode(body)
+
+        let (data, response) = try await session.data(for: request)
+        try handleResponse(response)
+
+        let decoder = JSONDecoder()
+        return try decoder.decode(T.self, from: data)
+    }
+
+    // MARK: - Combine Methods
     private func get<T: Decodable>(_ url: URL, expecting: T.Type) -> AnyPublisher<T, AppError> {
         var request = URLRequest(url: url)
         addAuthHeader(&request)
