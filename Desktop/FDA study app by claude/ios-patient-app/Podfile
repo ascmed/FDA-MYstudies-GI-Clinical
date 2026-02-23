@@ -1,0 +1,49 @@
+platform :ios, '14.0'
+
+target 'GIClinicalStudies' do
+  use_frameworks!
+
+  # Core dependencies
+  pod 'ResearchKit'
+  pod 'Alamofire'
+  pod 'KeychainAccess'
+  pod 'SwiftyJSON'
+  pod 'Realm'
+
+  # UI & UX
+  pod 'SnapKit'
+  pod 'MBProgressHUD'
+
+  # Logging
+  pod 'CocoaLumberjack'
+
+  # Analytics (privacy-preserving)
+  pod 'Firebase/Analytics'
+  pod 'Firebase/Messaging'
+
+  # Image handling
+  pod 'Kingfisher'
+
+  # JSON
+  pod 'Codable'
+
+  target 'GIClinicalStudiesTests' do
+    inherit! :search_paths
+
+    pod 'Quick'
+    pod 'Nimble'
+  end
+end
+
+# Post-install script
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        'COCOAPODS=1'
+      ]
+    end
+  end
+end
