@@ -1,0 +1,166 @@
+.study-detail {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.study-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.study-info h1 {
+  margin-bottom: 0.5rem;
+}
+
+.study-id {
+  color: var(--color-gray);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.study-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.badge.status-draft {
+  background-color: #FEE2E2;
+  color: var(--color-red);
+}
+
+.badge.status-published {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.study-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.study-actions .btn-primary {
+  white-space: nowrap;
+}
+
+.study-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--color-gray);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 1rem 0;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--color-dark);
+}
+
+.tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tab-content {
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.surveys-section table {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.surveys-section th {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 1rem;
+  text-align: left;
+}
+
+.surveys-section td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.consent-section {
+  background-color: var(--color-white);
+  padding: 2rem;
+  border-radius: 0.5rem;
+}
+
+.consent-preview {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background-color: var(--color-gray-light);
+  border-radius: 0.375rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.detail-list dt {
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.detail-list dd {
+  color: var(--color-gray);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .study-header {
+    flex-direction: column;
+  }
+
+  .study-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .detail-list {
+    grid-template-columns: 1fr;
+  }
+}
